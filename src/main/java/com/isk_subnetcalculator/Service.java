@@ -12,12 +12,12 @@ public class Service {
 
     public static void main(String[] args) {
 
-//        ulic = "Bieszczada";
-//        woj = "18";
-//        pow= "61";
-        ulic = "Brzozowa";
-        woj = "02";
-        pow= "01";
+        ulic = "Bieszczada";
+        woj = "18";
+        pow= "61";
+//        ulic = "Brzozowa";
+//        woj = "02";
+//        pow= "01";
         result = choser.chooser(param, woj, pow, ulic);
 //        if(woj==null && pow == null) {
 //            result = choser.chooser(param, woj, pow, ulic);
