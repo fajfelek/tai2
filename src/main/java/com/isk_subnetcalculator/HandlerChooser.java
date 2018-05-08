@@ -2,14 +2,12 @@ package com.isk_subnetcalculator;
 
 
 import java.io.File;
-import java.io.IOException;
-import java.text.Normalizer;
+import java.nio.file.NoSuchFileException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -17,46 +15,73 @@ import org.xml.sax.SAXException;
  */
 public class HandlerChooser {
 
-    /**
-     *
-     * @param text
-     * @return
-     */
-    public String charReplacement(String text){
+    Map<String, String> wojew = new HashMap<>();
+    Map<String, String> miasta = new HashMap<>();
 
-        String normNazwa = Normalizer.normalize(text.substring(0, 5),
-                Normalizer.Form.NFD);
-
-        normNazwa = normNazwa.replaceAll("[\\p{InCombining"
-                + "DiacriticalMarks}]", "").replace("\u0141", "L");
-
-
-        return normNazwa;
+    public Map<String, String> getWojew() {
+        return wojew;
     }
 
-    Map<String, String> wojew = new HashMap<>();
-    Map<String, String> wojew2 = new HashMap<>();
+    public Map<String, String> getMiasta() {
+        return miasta;
+    }
 
-    public HandlerChooser(){
+    private void createWojewMap(){
+        wojew.put("Dolnośląskie", "02");
+        wojew.put("Kujawsko-Pomorskie", "04");
+        wojew.put("Lubelskie", "06");
+        wojew.put("Lubuskie", "08");
+        wojew.put("Łódzkie", "10");
+        wojew.put("Małopolskie", "12");
+        wojew.put("Mazowieckie", "14");
+        wojew.put("Opolskie", "16");
+        wojew.put("Podkarpackie", "18");
+        wojew.put("Podlaskie", "20");
+        wojew.put("Pomorskie", "22");
+        wojew.put("Śląskie", "24");
+        wojew.put("Świętokrzyskie", "26");
+        wojew.put("Warmińsko-Mazurskie", "28");
+        wojew.put("Wielkopolskie", "30");
+        wojew.put("Zachodniopomorskie", "32");
+
+    }
+
+    public HandlerChooser() {
+
+// wypisanie hashMap
+//            for(Map.Entry<String, String> entry : wojew.entrySet()) {
+//                String key = entry.getKey();
+//                String value = entry.getValue();
+//                System.out.println(key + " + " + value);
+//            }
         try {
-
-            File stream = new File("src/main/resources/data/ULIC.xml");
+            File stream = new File("src/main/resources/data/TERC.xml");
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             TERChandler userhandler = new TERChandler();
             saxParser.parse(stream, userhandler);
 
-            wojew2 = userhandler.getWojew();
+            wojew = userhandler.getWojew();
 
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchFileException fe) {
+            System.err.println("Nie znaleziono pliku TERC.xml");
+        } catch (Exception e) {
+            System.err.println("Błąd parsera TERC");
         }
 
-        for (Map.Entry<String, String> entry : wojew2.entrySet()) {
-            String klucz = charReplacement(entry.getKey());
-            klucz = klucz.substring(0,5).toLowerCase();
-            wojew.put(klucz, entry.getValue());
+        try {
+            File stream = new File("src/main/resources/data/SIMC.xml");
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+            SIMChandler userhandler = new SIMChandler();
+            saxParser.parse(stream, userhandler);
+
+            miasta = userhandler.getMiasta();
+
+        } catch (NoSuchFileException fe) {
+            System.err.println("Nie znaleziono pliku SIMC.xml");
+        } catch (Exception e) {
+            System.err.println("Błąd parsera SIMC");
         }
     }
     /**
@@ -67,34 +92,37 @@ public class HandlerChooser {
      * @param ulic
      * @return
      */
-    public int chooser(String param, String woj, String pow, String ulic){
+//    public int chooser(String param, String woj, String pow, String ulic){
+//
+//        try {
+//
+//            File stream = new File("src/main/resources/data/ULIC.xml");
+//            SAXParserFactory factory = SAXParserFactory.newInstance();
+//            SAXParser saxParser = factory.newSAXParser();
+//
+//            return chooser2(param,woj,pow,ulic,saxParser,stream);
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return 0;
+//    }
+
+    public Vector<Description> chooser(String param, String woj, String pow, String ulic) {
 
         try {
-
             File stream = new File("src/main/resources/data/ULIC.xml");
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
 
-            return chooser2(param,woj,pow,ulic,saxParser,stream);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
 
-    private int chooser2(String param, String woj, String pow,
-                         String ulic, SAXParser saxParser, File stream)
-            throws SAXException, IOException
-    {
-        System.out.println("CHOOSER2");
         System.out.println(param + " + " + woj + " + " + pow + " + " + ulic);
 
         // <WOJ>
         if (param == null && woj != null && pow == null && ulic != null){
             XmlHandler1 userhandler = new XmlHandler1(woj, ulic);
             saxParser.parse(stream, userhandler);
-            return userhandler.getCounter();
+            //return userhandler.getCounter();
         }
         // <WOJ/POW>
         if (param == null && woj != null && pow != null && ulic != null){
@@ -103,19 +131,22 @@ public class HandlerChooser {
 
             int counter = userhandler.getCounter();
             Vector<Description> descriptionVector = userhandler.getStreetDescription();
-            for(int i = 0; i < counter; i++){
-                System.out.println(descriptionVector.get(i));
-            }
+//            for(int i = 0; i < counter; i++){
+//                System.out.println(descriptionVector.get(i));
+//            }
 
-            return userhandler.getCounter();
+            return userhandler.getStreetDescription();
         }
         // <ulica>
         if (param == null && woj == null && pow == null && ulic != null){
             XmlHandler3 userhandler = new XmlHandler3(ulic);
             saxParser.parse(stream, userhandler);
-            return userhandler.getCounter();
+            //return userhandler.getCounter();
         }
-        return 0;
+        } catch (Exception e){
+
+        }
+        return null;
     }
 
 }

@@ -23,7 +23,43 @@ public class Description {
             this.NAME = name;
         }
 
-        @Override
+    public String getWOJ() {
+        return WOJ;
+    }
+
+    public String getPOW() {
+        return POW;
+    }
+
+    public String getGMI() {
+        return GMI;
+    }
+
+    public String getRODZ() {
+        return RODZ;
+    }
+
+    public String getID_CITY() {
+        return ID_CITY;
+    }
+
+    public void setID_CITY(String ID_CITY) {
+        this.ID_CITY = ID_CITY;
+    }
+
+    public String getID_NAME() {
+        return ID_NAME;
+    }
+
+    public String getCECH() {
+        return CECH;
+    }
+
+    public String getNAME() {
+        return NAME;
+    }
+
+    @Override
         public String toString() {
             return "Description{" +
                     "WOJ='" + WOJ + '\'' +
